@@ -161,7 +161,7 @@ body {
 
 .left-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   border: 1px solid var(--cad-line);
   border-radius: 8px;
@@ -337,6 +337,27 @@ body {
 
 .left-tab-page p {
   margin: 4px 0;
+}
+
+.info-links {
+  display: grid;
+  gap: 6px;
+}
+
+.info-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 5px 7px;
+  font-size: 0.82rem;
+  color: var(--cad-accent-strong);
+  background: #ffffff;
+  text-decoration: none;
+}
+
+.info-link:hover {
+  border-color: var(--cad-accent);
 }
 
 .tip {

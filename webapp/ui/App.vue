@@ -83,6 +83,22 @@ function tr(ja: string, en: string): string {
   return uiLang.value === "ja" ? ja : en;
 }
 
+// Edit author/SNS fields here when finalized.
+const APP_INFO = {
+  summaryJa:
+    "折り紙の展開図を、(a+b√2)/2^k 格子ベースで設計・最適化・検証するためのクライアント完結Webアプリです。",
+  summaryEn:
+    "A client-only web app for designing, optimizing, and validating origami crease patterns on the (a+b*sqrt(2))/2^k lattice.",
+  flowJa: "配置 → タイリング最適化 → 展開図生成 → 折り上がり推定",
+  flowEn: "Placement -> Tiling optimization -> Crease generation -> Folded preview",
+  authorName: "11田",
+  socialLinks: [
+    { label: "X / Twitter ", url: "https://x.com/11da_origami" },
+  ],
+  repositoryUrl: "https://github.com/KT-1991/sqrt2-origami-studio",
+  licenseName: "MIT",
+} as const;
+
 function pointExactKey(p: PointE): string {
   return `${p.x.a.toString()}_${p.x.b.toString()}_${p.x.k}|${p.y.a.toString()}_${p.y.b.toString()}_${p.y.k}`;
 }
@@ -278,7 +294,7 @@ const previewLineWidth = ref(1.5);
 const previewShowFaceId = ref(true);
 const errorMessage = ref<string>("");
 const lastRunAt = ref<string>("");
-const leftPaneTab = ref<"run" | "global" | "points" | "generation">("run");
+const leftPaneTab = ref<"run" | "global" | "points" | "generation" | "info">("run");
 
 const symmetryEnabled = ref(true);
 const placementMode = ref<"axis" | "side">("side");
@@ -1919,6 +1935,16 @@ onBeforeUnmount(() => {
         >
           {{ tr("生成設定", "Generation") }}
         </button>
+        <button
+          class="left-tab"
+          :class="{ active: leftPaneTab === 'info' }"
+          type="button"
+          role="tab"
+          :aria-selected="leftPaneTab === 'info'"
+          @click="leftPaneTab = 'info'"
+        >
+          Info
+        </button>
       </nav>
 
       <div class="left-panel-body">
@@ -2225,6 +2251,53 @@ onBeforeUnmount(() => {
                 <p class="field-help">{{ tr("優先頂点候補として保持する件数です。", "How many priority vertex candidates are retained.") }}</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div v-show="leftPaneTab === 'info'" class="left-tab-page">
+          <h2>Info</h2>
+          <div class="seed-edge-box">
+            <h3>{{ tr("アプリ概要", "About") }}</h3>
+            <p class="tip">{{ tr(APP_INFO.summaryJa, APP_INFO.summaryEn) }}</p>
+            <p class="tip">
+              <strong>{{ tr("フロー", "Flow") }}:</strong>
+              {{ tr(APP_INFO.flowJa, APP_INFO.flowEn) }}
+            </p>
+          </div>
+
+          <div class="seed-edge-box">
+            <h3>{{ tr("作者 / SNS", "Author / Social") }}</h3>
+            <p><strong>{{ tr("作者", "Author") }}:</strong> {{ APP_INFO.authorName }}</p>
+            <div class="info-links">
+              <a
+                v-for="link in APP_INFO.socialLinks"
+                :key="`info_social_${link.label}`"
+                :href="link.url"
+                target="_blank"
+                rel="noreferrer noopener"
+                class="info-link"
+              >
+                {{ link.label }}
+              </a>
+            </div>
+          </div>
+
+          <div class="seed-edge-box">
+            <h3>{{ tr("リポジトリ / ライセンス", "Repository / License") }}</h3>
+            <div class="info-links">
+              <a
+                :href="APP_INFO.repositoryUrl"
+                target="_blank"
+                rel="noreferrer noopener"
+                class="info-link"
+              >
+                GitHub Repository
+              </a>
+            </div>
+            <p class="tip">
+              {{ tr("ライセンス", "License") }}: {{ APP_INFO.licenseName }}
+              ({{ tr("リポジトリの LICENSE を参照", "see LICENSE in repository") }})
+            </p>
           </div>
         </div>
       </div>

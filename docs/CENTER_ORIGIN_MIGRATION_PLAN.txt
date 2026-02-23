@@ -476,3 +476,20 @@ Progress Log
   - Next:
     - Re-run failed Pages workflow after confirming repository Pages settings.
   - Blockers: None.
+- 2026-02-23: Added in-app `Info` tab and set project license to MIT.
+  - Completed:
+    - Added `Info` tab in left pane with:
+      - app summary
+      - workflow summary
+      - author/social section (TBD placeholders)
+      - repository/license section
+    - Added editable `APP_INFO` constant in `webapp/ui/App.vue` for author/SNS updates.
+    - Added root `LICENSE` file (MIT).
+    - Updated root `README.md` license section to MIT.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - User can edit `APP_INFO` fields when author/SNS are finalized.
+  - Blockers: None.

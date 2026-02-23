@@ -50,4 +50,4 @@ so project pages (`https://<user>.github.io/<repo>/`) work without extra edits.
 
 ## License
 
-License is currently not set. Add `LICENSE` before public release.
+MIT. See `LICENSE`.
