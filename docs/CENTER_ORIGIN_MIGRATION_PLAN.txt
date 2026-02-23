@@ -469,3 +469,10 @@ Progress Log
   - Next:
     - Enable `Settings -> Pages -> Source: GitHub Actions` after first push.
   - Blockers: None.
+- 2026-02-23: Addressed GitHub Pages deploy 404 troubleshooting.
+  - Completed:
+    - Updated workflow to include `actions/configure-pages@v5`.
+    - Added explicit 404 troubleshooting steps in `docs/GITHUB_FIRST_PUBLISH_STEPS.md`.
+  - Next:
+    - Re-run failed Pages workflow after confirming repository Pages settings.
+  - Blockers: None.

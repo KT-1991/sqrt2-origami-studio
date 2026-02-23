@@ -64,3 +64,14 @@ In repository settings:
 1. `Settings -> Actions -> General`
 2. `Workflow permissions` = `Read and write permissions`
 
+If you see:
+
+- `Failed to create deployment (status: 404)`
+- `Ensure GitHub Pages has been enabled`
+
+check in this order:
+
+1. `Settings -> Pages` is opened at least once.
+2. `Source` is set to `GitHub Actions`.
+3. Repository is not restricted by org policy for Pages/Actions.
+4. Re-run the failed workflow after saving settings.
