@@ -1,0 +1,870 @@
+:root {
+  --cad-bg-a: #f8fafd;
+  --cad-bg-b: #edf2f8;
+  --cad-panel: rgba(255, 255, 255, 0.94);
+  --cad-panel-strong: rgba(255, 255, 255, 0.98);
+  --cad-line: #c1cedd;
+  --cad-line-strong: #91a7c2;
+  --cad-text: #1f2a3a;
+  --cad-sub: #5a687b;
+  --cad-accent: #2e5f96;
+  --cad-accent-strong: #1f4776;
+  --cad-good: #226a4a;
+  --cad-danger: #9a2f44;
+  --cad-shadow: 0 6px 16px rgba(40, 56, 80, 0.07);
+  --cad-input-bg: #ffffff;
+  --cad-soft: #f5f8fc;
+  --cad-canvas-bg: #fbfdff;
+  font-family: "IBM Plex Sans JP", "IBM Plex Sans", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: var(--cad-text);
+  background: linear-gradient(160deg, var(--cad-bg-a) 0%, var(--cad-bg-b) 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--cad-text);
+  background:
+    linear-gradient(160deg, var(--cad-bg-a) 0%, var(--cad-bg-b) 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 7px,
+      rgba(72, 97, 131, 0.022) 8px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 7px,
+      rgba(72, 97, 131, 0.022) 8px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 31px,
+      rgba(72, 97, 131, 0.06) 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 31px,
+      rgba(72, 97, 131, 0.06) 32px
+    );
+  background-attachment: fixed;
+}
+
+.page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 8px;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(290px, 24vw) minmax(500px, 1fr) minmax(320px, 28vw);
+  grid-template-rows: auto minmax(0, 0.72fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  overflow: hidden;
+}
+
+.hero {
+  grid-column: 1 / 4;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--cad-panel-strong);
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  box-shadow: var(--cad-shadow);
+  padding: 8px 10px;
+}
+
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hero-title {
+  min-width: 0;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 1.18rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hero p {
+  margin: 4px 0 0;
+  color: var(--cad-sub);
+  font-size: 0.82rem;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hero-actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--cad-sub);
+}
+
+.panel {
+  background: var(--cad-panel);
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  box-shadow: var(--cad-shadow);
+  padding: 10px;
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel h2 {
+  margin: 0 0 8px;
+  font-size: 0.96rem;
+  letter-spacing: 0.01em;
+}
+
+.designer {
+  grid-column: 2;
+  grid-row: 2 / 6;
+  overflow: auto;
+}
+
+.left-panel {
+  grid-column: 1;
+  grid-row: 2 / 6;
+  padding: 8px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.left-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  padding: 4px;
+  background: var(--cad-soft);
+}
+
+.left-tab {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--cad-sub);
+  padding: 5px 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.left-tab.active {
+  border-color: var(--cad-line-strong);
+  background: #ffffff;
+  color: var(--cad-accent-strong);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+.left-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.left-tab-page {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.cp-view {
+  grid-column: 3;
+  grid-row: 2 / 5;
+  overflow: auto;
+}
+
+.fold-view {
+  grid-column: 3;
+  grid-row: 5;
+  overflow: auto;
+}
+
+.check {
+  background: var(--cad-soft);
+  border-radius: 7px;
+  padding: 3px 7px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.settings-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  color: var(--cad-sub);
+}
+
+.settings-grid input,
+.settings-grid select {
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 3px 7px;
+  font-size: 0.84rem;
+  background: var(--cad-input-bg);
+  color: var(--cad-text);
+}
+
+.designer-canvas {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  touch-action: none;
+  cursor: crosshair;
+  min-height: 0;
+  display: block;
+  margin: 0 auto;
+}
+
+.box {
+  fill: #f9fbff;
+  stroke: #40638f;
+  stroke-width: 1.5px;
+}
+
+.axis-line {
+  stroke: #6a84a8;
+  stroke-dasharray: 5 4;
+  stroke-width: 1.5px;
+}
+
+.pt {
+  stroke-width: 1.4px;
+}
+
+.pt.axis {
+  fill: #edf9f2;
+  stroke: #2e8a60;
+}
+
+.pt.side {
+  fill: #fff2f5;
+  stroke: #a03e53;
+}
+
+.pt.free {
+  fill: #f2f5fb;
+  stroke: #4f5e79;
+}
+
+.pt.mirror {
+  fill: rgba(72, 104, 147, 0.12);
+  stroke: #8599b4;
+  stroke-dasharray: 3 2;
+}
+
+.seed-edge-line {
+  stroke: rgba(53, 96, 148, 0.9);
+  stroke-width: 2.2px;
+  stroke-linecap: round;
+}
+
+.seed-segment-line {
+  stroke: rgba(95, 114, 143, 0.88);
+  stroke-width: 1.8px;
+  stroke-linecap: round;
+  stroke-dasharray: 4 3;
+}
+
+.seed-edge-preview {
+  stroke: rgba(46, 95, 150, 0.9);
+  stroke-width: 1.9px;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+}
+
+.active-corner-dot {
+  fill: rgba(64, 99, 143, 0.14);
+  stroke: #40638f;
+  stroke-width: 1.1px;
+  pointer-events: none;
+}
+
+.active-corner-dot.start {
+  fill: rgba(160, 62, 83, 0.16);
+  stroke: #a03e53;
+}
+
+.active-corner-hit {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+}
+
+.grid-dot {
+  fill: rgba(64, 99, 143, 0.24);
+  pointer-events: none;
+}
+
+.left-tab-page p {
+  margin: 4px 0;
+}
+
+.tip {
+  color: var(--cad-sub);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.row-btn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.run-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.run-actions .btn {
+  flex: 1 1 140px;
+}
+
+.selected-editor {
+  margin-top: 10px;
+  border-top: 1px solid var(--cad-line);
+  padding-top: 8px;
+}
+
+.selected-editor-top {
+  margin-top: 0;
+  margin-bottom: 8px;
+  border-top: none;
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--cad-soft);
+}
+
+.selected-editor h3 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+.selected-editor label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 0.84rem;
+}
+
+.coord-inputs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.selected-editor .coord-inputs input {
+  width: 58px;
+}
+
+.selected-editor input {
+  width: 112px;
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 3px 6px;
+  font-size: 0.84rem;
+}
+
+.seed-edge-box {
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--cad-soft);
+}
+
+.seed-edge-box h3 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  color: var(--cad-text);
+}
+
+.seed-edge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.seed-edge-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cad-sub);
+  font-size: 0.84rem;
+}
+
+.seed-edge-tip {
+  margin: 6px 0 0;
+}
+
+.seed-subtitle {
+  margin: 10px 0 6px;
+  font-size: 0.9rem;
+  color: var(--cad-text);
+}
+
+.seed-segment-grid {
+  display: grid;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.seed-segment-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cad-sub);
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+}
+
+.tiny-num {
+  width: 66px;
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 2px 6px;
+  color: var(--cad-text);
+  background: var(--cad-input-bg);
+  font-size: 0.82rem;
+}
+
+.seed-edge-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 5px;
+}
+
+.seed-edge-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 1px solid var(--cad-line);
+  border-radius: 7px;
+  background: var(--cad-input-bg);
+  font-size: 0.8rem;
+}
+
+.btn.mini {
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 0.74rem;
+}
+
+.tiling-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.tiling-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.84rem;
+  color: var(--cad-sub);
+}
+
+.tiling-row input {
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 3px 7px;
+  font-size: 0.84rem;
+}
+
+.btn {
+  border: 1px solid var(--cad-accent);
+  border-radius: 8px;
+  background: linear-gradient(130deg, #3f6f9f, #2e5f96);
+  color: #ffffff;
+  padding: 8px 12px;
+  font-weight: 650;
+  font-size: 0.84rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.ghost {
+  background: #ffffff;
+  border: 1px solid var(--cad-line-strong);
+  color: var(--cad-accent-strong);
+}
+
+.btn.danger {
+  border-color: #8e3042;
+  background: linear-gradient(130deg, #b84a60, #9a2f44);
+  color: #ffffff;
+}
+
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: var(--cad-soft);
+  border: 1px dashed var(--cad-line-strong);
+  font-size: 0.84rem;
+}
+
+.select {
+  border-radius: 8px;
+  border: 1px solid var(--cad-line-strong);
+  background: var(--cad-input-bg);
+  padding: 7px 8px;
+  min-width: 180px;
+  color: var(--cad-text);
+  font-size: 0.84rem;
+}
+
+.mini-select {
+  border-radius: 7px;
+  border: 1px solid var(--cad-line-strong);
+  background: var(--cad-input-bg);
+  padding: 3px 6px;
+  color: var(--cad-text);
+  font-size: 0.84rem;
+}
+
+.file-label input[type="file"] {
+  max-width: 230px;
+}
+
+.error {
+  margin: 8px 0 0;
+  color: #9a2f44;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.modal-section {
+  margin-bottom: 0;
+}
+
+.modal-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px 8px;
+  margin-top: 6px;
+}
+
+.modal-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cad-sub);
+  font-size: 0.84rem;
+  flex-wrap: wrap;
+}
+
+.modal-field input {
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 3px 7px;
+  background: var(--cad-input-bg);
+  color: var(--cad-text);
+  font-size: 0.84rem;
+}
+
+.field-help {
+  margin: 4px 0 0;
+  color: var(--cad-sub);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.progress-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(31, 43, 63, 0.12);
+  backdrop-filter: blur(1px);
+}
+
+.progress-overlay-card {
+  width: 126px;
+  height: 126px;
+  border-radius: 12px;
+  border: 1px solid var(--cad-line);
+  background: var(--cad-panel-strong);
+  box-shadow: 0 10px 24px rgba(35, 49, 70, 0.16);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.progress-overlay-card p {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--cad-text);
+}
+
+.progress-ring-canvas {
+  width: 88px;
+  height: 88px;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-track {
+  fill: none;
+  stroke: #d4deeb;
+  stroke-width: 9;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: #2e5f96;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 160ms ease;
+}
+
+.best {
+  margin: 8px 0 0;
+  color: var(--cad-good);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.cp-view-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--cad-sub);
+}
+
+.cp-view-top label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+}
+
+.cp-view-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.cp-view-canvas {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.cp-box {
+  fill: #ffffff;
+  stroke: #40638f;
+  stroke-width: 1.5px;
+}
+
+.cp-edge {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.cp-edge.internal {
+  stroke: #40638f;
+  stroke-width: 1.6px;
+}
+
+.cp-edge.boundary {
+  stroke: #2e8a60;
+  stroke-width: 2.2px;
+}
+
+.cp-point {
+  stroke: #ffffff;
+  stroke-width: 0.9px;
+}
+
+.cp-point.internal {
+  fill: #5a779a;
+}
+
+.cp-point.boundary {
+  fill: #2e8a60;
+}
+
+.cp-point.corner {
+  fill: #a03e53;
+}
+
+.cp-view-meta {
+  border: 1px solid var(--cad-line);
+  border-radius: 8px;
+  background: var(--cad-soft);
+  padding: 8px;
+  font-size: 0.84rem;
+  color: var(--cad-sub);
+}
+
+.cp-view-meta p {
+  margin: 4px 0;
+}
+
+.fold-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 8px;
+  color: var(--cad-sub);
+}
+
+.fold-top label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.84rem;
+}
+
+.fold-top input[type="number"] {
+  width: 82px;
+  border: 1px solid var(--cad-line-strong);
+  border-radius: 7px;
+  padding: 3px 6px;
+  font-size: 0.84rem;
+}
+
+.fold-view-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.fold-view-canvas {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.fold-box {
+  fill: #ffffff;
+  stroke: #40638f;
+  stroke-width: 1.5px;
+}
+
+.fold-face {
+  stroke: rgba(47, 70, 103, 0.52);
+}
+
+.fold-face-label {
+  fill: #1f2a3a;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.empty {
+  color: var(--cad-sub);
+}
+
+@media (max-width: 1360px) {
+  .page {
+    grid-template-columns: minmax(280px, 26vw) minmax(420px, 1fr) minmax(300px, 28vw);
+  }
+}
+
+@media (max-width: 1120px) {
+  .page {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
+
+  .hero,
+  .left-panel,
+  .designer,
+  .cp-view,
+  .fold-view {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .panel {
+    overflow: visible;
+  }
+
+  .hero-head {
+    flex-direction: column;
+  }
+
+  .hero-actions {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero h1 {
+    font-size: 1.02rem;
+  }
+}

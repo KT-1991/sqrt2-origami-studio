@@ -1,0 +1,12 @@
+﻿Backup created: 2026-02-22 09:38:54
+Source root: C:\Users\chiku\Desktop\origami\test05
+
+Files:
+webapp/ui/App.vue
+webapp/ui/styles.css
+webapp/src/engine/tiling.ts
+webapp/src/engine/creasegen_graph.ts
+webapp/src/engine/creasegen_graph_ops.ts
+webapp/src/engine/creasegen_grid_utils.ts
+webapp/src/engine/creasegen.ts
+webapp/src/engine/types.ts

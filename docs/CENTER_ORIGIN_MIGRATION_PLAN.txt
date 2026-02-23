@@ -1,0 +1,471 @@
+﻿Center-Origin Migration Plan (Dyadic Offset)
+
+Purpose
+- Migrate the coordinate system to a center-based square: local domain [-1/2, 1/2] x [-1/2, 1/2].
+- Support configurable origin offset originOffset=(dx,dy) where dx,dy are dyadic numbers (a+b*sqrt(2))/2^k.
+- Keep symmetry logic stable (y=x in local coordinates).
+
+Backup Strategy
+- Create full backup copies before modification.
+- Backup target set:
+  - webapp/ui/App.vue
+  - webapp/ui/styles.css
+  - webapp/src/engine/tiling.ts
+  - webapp/src/engine/creasegen_graph.ts
+  - webapp/src/engine/creasegen_graph_ops.ts
+  - webapp/src/engine/creasegen_grid_utils.ts
+  - webapp/src/engine/creasegen.ts
+  - webapp/src/engine/types.ts
+- Backup destination:
+  - webapp/_backup/center_origin_migration_<timestamp>/
+
+Coordinate Specification
+- Local coordinates: [-1/2, 1/2].
+- World coordinates: world = local + originOffset.
+- Inverse transform: local = world - originOffset.
+- originOffset uses exact dyadic representation (no float-only source of truth).
+- Engine remains the single source of truth for addability checks and bounds checks.
+- UI must not own a separate acceptance rule; it only forwards edits and renders state.
+
+Engine Responsibility Rule
+- All validity checks (in-paper, lattice-valid, expand-eligibility) are decided in engine code.
+- If coordinate normalization is used internally, normalization must happen inside engine entry points.
+- Boundary definitions must be derived from originOffset consistently for all stages.
+
+Implementation Milestones
+1) Utility layer
+- Add dyadic offset type and exact point add/sub helpers.
+- Add centered boundary checks (inCenteredSquare).
+
+2) Tiling migration
+- Replace [0,1] clamps and penalties with [-1/2,1/2].
+- Update corner-hit targets to centered square corners.
+- Update symmetry projection and perturbation ranges.
+- Update lattice candidate generation to centered domain.
+
+3) Creasegen migration
+- Update grid enumeration bounds from [0,1] to centered domain.
+- Update square boundary initialization to centered corners.
+- Update default diagonal seed to centered diagonal endpoints.
+- Update square-membership checks.
+
+4) UI migration
+- Unify canvas/input/display to centered coordinates.
+- Add originOffset(dx,dy) input using dyadic (a,b,k).
+- Keep snapping on dyadic lattice in centered domain.
+
+5) I/O compatibility decision
+- If cp_graph_v1 compatibility is required, add boundary adapters only at import/export.
+- Internal engine should remain center-based consistently.
+
+6) Validation
+- Run typecheck:web, typecheck:engine, build.
+- Run regression on symmetry cases (axis/side) and seed segments.
+- Compare behavior before/after with representative datasets.
+
+Risks / Notes
+- Partial migration causes subtle asymmetry bugs.
+- Center-origin migration must include tiling, not only UI.
+- Prefer exact dyadic operations where possible to avoid drift.
+
+Execution Order
+- Backup -> Utility layer -> Tiling -> Creasegen -> UI -> Compatibility -> Validation -> Docs.
+
+Owner Decision Log
+- dyadic originOffset selected by user.
+- Consistent center-based processing preferred over per-call coordinate conversion.
+
+Progress Tracking Rules
+- Record progress in this file continuously.
+- Update status with date/time, completed work, next action, and blockers.
+- Keep old entries (append-only) to preserve change history.
+
+Progress Log
+- 2026-02-21: Planning document created and saved.
+  - Completed: Defined migration scope, backup strategy, and milestones.
+  - Next: Create backup copy set and start utility-layer migration.
+  - Blockers: None.
+- 2026-02-22: Backup copy step completed.
+  - Completed: Created backup directory and copied planned files.
+  - Backup: webapp/_backup/center_origin_migration_20260222_093854
+  - Manifest: webapp/_backup/center_origin_migration_20260222_093854/MANIFEST.txt
+  - Next: Start utility-layer migration for centered coordinates + dyadic origin offset.
+  - Blockers: None.
+- 2026-02-22: Coordinate responsibility policy clarified.
+  - Completed: Adopted engine-side single-rule validation with originOffset propagation.
+  - Next: Implement offset transport through types/protocol and run-entry normalization.
+  - Blockers: None.
+- 2026-02-22: Centered-domain migration started in core engine modules.
+  - Completed:
+    - paper_frame transform changed to centered local space (internal = world - origin).
+    - Added shared paper bounds constants (exact/float) in paper_frame.
+    - Migrated tiling boundary/clamp/lattice/corner targets to [-1/2, 1/2].
+    - Migrated creasegen grid enumeration and square boundary init to centered bounds.
+    - Migrated boundary predicates/scoring/prune-center metric to centered bounds.
+    - Updated default cp_graph_v1 domain metadata to centered unit square.
+  - Next:
+    - Run full typecheck/build and fix regressions.
+    - Continue UI migration to centered canvas coordinates.
+  - Blockers: None.
+- 2026-02-22: Validation pass after core migration chunk.
+  - Completed:
+    - npm run typecheck:engine : pass
+    - npm run typecheck:web : pass
+    - npm run build : pass
+  - Next:
+    - UI coordinate migration (canvas/lattice/cp-view) from [0,1] to [-1/2,1/2].
+    - Add import/export adapters for non-zero originOffset domain metadata.
+  - Blockers: None.
+- 2026-02-22: UI coordinate migration (phase 1) completed.
+  - Completed:
+    - App.vue canvas/grid/corner coordinate handling moved to centered range [-1/2, 1/2].
+    - Designer defaults, boundary corner injection, point editor min/max updated to centered range.
+    - cp_view projection updated to centered range mapping.
+    - Legacy cp_graph_v1 import from [0,1] domain now auto-shifts corners by -1/2 to centered world.
+    - Default originOffset in UI changed to (0,0) dyadic.
+    - npm run typecheck:engine / typecheck:web / build all pass after UI updates.
+  - Next:
+    - UI coordinate migration (phase 2): make canvas paper window follow non-zero originOffset.
+    - Add explicit import/export adapter policy for mixed legacy/new domains.
+  - Blockers: None.
+- 2026-02-22: UI coordinate migration (phase 2) completed.
+  - Completed:
+    - Canvas/CP view now follow paper window derived from originOffset (x/y independent).
+    - Snap/edit logic now uses local lattice coordinates and maps back to world via originOffset.
+    - Symmetry mirror logic switched from raw x<->y swap to local-diagonal mirror with originOffset.
+    - Symmetry axis line rendering now follows shifted local y=x axis on canvas.
+    - On originOffset change, designer points/external corners/seed segments are translated to preserve local placement.
+    - Legacy cp_graph import now maps [0,1] data to current world frame using originOffset.
+    - npm run typecheck:engine / typecheck:web / build all pass.
+  - Next:
+    - Import/export policy finalization for cp_graph domain metadata and optional explicit conversion toggle.
+    - Real-data regression check for prune and seed behaviors under non-zero originOffset.
+  - Blockers: None.
+- 2026-02-22: cp_graph import/export policy controls added.
+  - Completed:
+    - Added explicit import policy UI: auto / legacy[0,1] / centered-world.
+    - Import conversion path now follows selected policy (not only domain auto-detect).
+    - Added cp_graph_v1 export UI and JSON download for selected generated graph.
+    - Added explicit export mode: centered-world domain or legacy[0,1] conversion.
+    - Status strip now displays current import/export policy settings.
+    - npm run typecheck:engine / typecheck:web / build all pass.
+  - Next:
+    - Add lightweight manual test checklist for policy combinations (auto/forced import + both export modes).
+    - Run non-zero originOffset real-data checks for prune behavior and seed symmetry consistency.
+  - Blockers: None.
+- 2026-02-22: Manual checklist added for cp_graph policy validation.
+  - Completed:
+    - Added `webapp/docs/CP_GRAPH_POLICY_TEST_CHECKLIST.md`.
+    - Included import/export roundtrip and non-zero originOffset symmetry checks.
+  - Next:
+    - Execute checklist on real data and capture failures with reproducible inputs.
+  - Blockers: None.
+- 2026-02-22: World-grid crop behavior wired for manual corner canvas.
+  - Completed:
+    - Changed designer lattice generation from local `[-1/2, 1/2] + offset` to world-space crop by `paperWindow`.
+    - Split lattice axes to `x`/`y` world sets and updated snap logic accordingly.
+    - Removed automatic point/segment/external-corner translation on `originOffset` change.
+    - Updated edge pick + corner exactization to use world lattice points directly.
+    - npm run typecheck:engine / typecheck:web / build all pass.
+  - Next:
+    - Manually verify offset sweep UX (grid shift visibility, axis/side snap feel, seed-edge index stability).
+  - Blockers: None.
+- 2026-02-22: Grid settings unified in UI (single source: a,b,k).
+  - Completed:
+    - Removed manual `den candidates` / `coeff candidates` inputs from tiling panel.
+    - Added automatic derivation from canvas grid settings:
+      - `denCandidates = [2^0, ..., 2^kMax]`
+      - `coeffCandidates = [max(aMax, bMax)]`
+    - Switched tiling input builder to use the derived candidates only.
+    - Added read-only hint text in UI showing current derived candidate values.
+    - npm run typecheck:web / typecheck:engine / build all pass.
+  - Next:
+    - Evaluate whether engine-side snap should move from `(den,coeff)` to direct `(a,b,k)` enumeration for exact semantic matching.
+  - Blockers: None.
+- 2026-02-22: Tiling lattice enumeration migrated to direct `(a,b,k)` in engine.
+  - Completed:
+    - Replaced `denCandidates/coeffCandidates` API with `lattice{aMax,bMax,kMax}` in engine types/default resolver.
+    - Reworked `tiling.ts` lattice generation to direct `(a+b*sqrt(2))/2^k` enumeration.
+    - Removed `den x coeff` search loop; snap/repair now run on a single direct lattice set.
+    - Updated UI tiling request builder to pass `lattice` directly from canvas `a,b,k`.
+    - Kept `TilingState.den/coeffLimit` as compatibility summary fields.
+    - npm run typecheck:engine / typecheck:web / build all pass.
+  - Next:
+    - Tune candidate selection limits in local repair if large `(a,b,k)` settings cause runtime growth.
+  - Blockers: None.
+- 2026-02-22: Crease generation UI cleanup for tool-mode operation.
+  - Completed:
+    - Removed corner-list debug block from "Crease Generation".
+    - Removed numeric seed-edge / seed-segment input forms; canvas-only editing remains.
+    - Removed cp_graph JSON/preset import controls from "Crease Generation".
+    - Simplified status strip by removing source/import-policy rows.
+    - Added beginner sample button (`Load sample layout`) in corner canvas side panel.
+    - typecheck:web / typecheck:engine / build all pass.
+  - Next:
+    - Optionally prune now-unused CSS selectors (`corner-source-box`, `file-label`) if desired.
+  - Blockers: None.
+- 2026-02-23: UI panel information architecture reorganized (single-canvas + 3 setting panels).
+  - Completed:
+    - Reorganized left column into:
+      - `Global Settings` (moved `a,b,k` and paper center `originOffset(dx,dy)`).
+      - `Point & Edge Settings` (symmetry/grid/edit mode, seed-edge controls, sample/reset/clear, selected-point editor).
+      - `Generation Settings` (tiling params + crease search budget).
+    - Simplified center panel to paper canvas only (removed top/side control blocks from canvas panel).
+    - Added collapsible sections in `Generation Settings` for tiling optimization and search budget (closed by default).
+    - Updated CSS grid placement and responsive rules for new panel classes:
+      - `global-panel`, `point-panel`, `generation-panel`.
+      - added reusable `settings-grid` and `collapse` styles.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Fine-tune spacing/wording after real workflow usage feedback.
+  - Blockers: None.
+- 2026-02-23: Runtime UI simplification for cleaner editing screen.
+  - Completed:
+    - Removed `Evaluation Result` panel from the main view (debug table hidden).
+    - Expanded right-side crease pattern area by changing layout:
+      - `cp-view` now spans rows 2-3.
+      - `fold-view` moved to row 4.
+    - Reduced bottom status strip to progress bar only (removed always-on status text block).
+    - Added centered progress-circle overlay shown only while `busy`:
+      - uses the same engine progress ratio as the bottom bar.
+      - blocks visual noise during generation while keeping edit screen clean at idle.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Optionally add a user toggle for overlay style (`bar only` / `overlay only` / `both`).
+  - Blockers: None.
+- 2026-02-23: Execution controls and global-setting input UX cleanup.
+  - Completed:
+    - Removed bottom progress-bar strip from main layout (busy state now uses overlay circle only).
+    - Moved execution buttons from top hero area to a dedicated left-top `Run` panel:
+      - tiling
+      - crease generation
+      - fold preview
+    - Kept language selector in hero, separated from execution actions.
+    - Unified global lattice input style with offset input style:
+      - `a,b,k` now shown as a single `grid (a,b,k)` row using the same compact numeric fields.
+      - Added brief explanation for how `a,b,k` affect candidate count/resolution.
+    - Updated grid placement:
+      - left column now `action-panel -> global-panel -> point-panel -> generation-panel`.
+      - `cp-view` expanded to rows 2-4, `fold-view` moved to row 5.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Collect feedback on whether language selector should also move into the left settings area.
+  - Blockers: None.
+- 2026-02-23: Point editor ordering + generation-settings modal UX.
+  - Completed:
+    - Moved `Selected point` editor to the top of `Point & Edge Settings` for faster direct edits.
+    - Replaced narrow inline generation setting area with modal-based editing:
+      - Added `Open generation settings` entry point in `Generation Settings` panel.
+      - Added popup dialog with two grouped sections:
+        - tiling optimization parameters
+        - crease search budget parameters
+      - Added short explanation text for each parameter field.
+      - Added close actions (button, outside click, Esc key).
+    - Kept compact summary values in the `Generation Settings` panel for quick glance.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Consider adding preset profiles (fast/balanced/strict) in the modal.
+  - Blockers: None.
+- 2026-02-23: ORIPA `.cp` export support added.
+  - Completed:
+    - Added `Export ORIPA .cp` button in Crease Pattern panel.
+    - Implemented `.cp` writer from selected generated graph:
+      - line format: `lineType x0 y0 x1 y1` (space-separated, decimal dot).
+      - boundary edges -> line type `1` (cut/contour).
+      - internal edges -> line type `2` (ridge/mountain, provisional default).
+      - y-coordinate converted to ORIPA-style downward axis.
+    - Reused existing export mode (`centered_world` / `legacy_unit`) for coordinate frame selection.
+    - Added UI note that explicit mountain/valley assignment is not yet available.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Add optional edge-assignment policy for internal lines (`ridge` / `valley` / `aux`) and, later, true MV assignment export when available.
+  - Blockers: None.
+- 2026-02-23: Visual pattern mock lab added for UI direction comparison.
+  - Completed:
+    - Added separate mock screen component with no engine coupling:
+      - `webapp/ui/mock/DesignMockLab.vue`
+      - includes 3 visual variants (`Atelier`, `Draftboard`, `Rice Paper`) and static demo panels.
+    - Added dedicated mock stylesheet:
+      - `webapp/ui/mock/design_mock_lab.css`
+      - includes variant-based color/typography/layout skins.
+    - Added startup switch in `webapp/ui/main.ts`:
+      - default app: `/`
+      - mock lab: `/?mode=ui-mock`
+    - Added usage note:
+      - `webapp/docs/UI_MOCK_PATTERN_LAB.md`
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Pick one variant as base direction, then backport selected tokens/components into production UI.
+  - Blockers: None.
+- 2026-02-23: Added a strongly different `Workbench` mock variant (VSCode-like).
+  - Completed:
+    - Extended mock variants from 3 to 4 by adding `Workbench`.
+    - Added an alternative layout mode in `DesignMockLab.vue` (not only color changes):
+      - activity rail
+      - explorer sidebar
+      - tab bar
+      - split editor (canvas + inspector)
+      - bottom terminal
+    - Added dedicated workbench skin tokens and component styles in `design_mock_lab.css`.
+    - Rewrote `DesignMockLab.vue` in clean ASCII text to remove prior mojibake and stabilize edits.
+    - Updated mock lab doc to list the new variant.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - If selected, port only the structural ideas (rail/sidebar/tabs/status) into production UI without changing engine wiring.
+  - Blockers: None.
+- 2026-02-23: Expanded Workbench mock into a style family.
+  - Completed:
+    - Added 3 additional VSCode-like variants in the mock lab:
+      - `Workbench Midnight`
+      - `Workbench Glass`
+      - `Workbench Sand`
+    - Updated variant switch logic so all `workbench*` variants use the workbench layout branch.
+    - Converted workbench visual constants to CSS variables and applied per-variant token overrides:
+      - editor background
+      - paper/axis/point colors
+      - tree text
+      - terminal foreground/background
+    - Updated mock lab documentation variant list.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Narrow down to 1-2 candidate workbench skins before production backport.
+  - Blockers: None.
+- 2026-02-23: Added three more bold VSCode-like mock variants.
+  - Completed:
+    - Added new mock variants:
+      - `Workbench CRT`
+      - `Workbench Schematic`
+      - `Workbench CAD Light`
+    - Kept the same workbench layout and expanded style tokens only.
+    - Added variant-specific visual treatments:
+      - CRT: scanline-like editor overlay and phosphor terminal glow.
+      - Schematic: blueprint-like dashed line styling.
+      - CAD Light: high-contrast white drafting look.
+    - Updated mock lab documentation from 7 to 10 variants.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Compare all workbench skins and shortlist 1-2 for production style extraction.
+  - Blockers: None.
+- 2026-02-23: Applied `Workbench CAD Light` direction to production UI skin.
+  - Completed:
+    - Updated `webapp/ui/styles.css` to a white CAD-like visual theme for the main app.
+    - Introduced CAD-style color tokens and replaced warm/pink-heavy palette with:
+      - white/gray drafting surfaces
+      - blue-gray line hierarchy
+      - restrained accent color for primary actions
+    - Updated modal/progress/CP/fold sections to match the same palette.
+    - Kept layout and engine behavior unchanged (style-only update).
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Fine-tune spacing/typography details after visual review in real workflows.
+  - Blockers: None.
+- 2026-02-23: Tightened production CAD skin spacing/typography and pushed background closer to drafting-board look.
+  - Completed:
+    - Reduced base text sizes and panel/control paddings for denser tool usage.
+    - Updated button/select/input dimensions to a compact CAD-like scale.
+    - Refined body background to a lighter drafting-board grid pattern (major + minor lines).
+    - Adjusted modal/progress/CP/Fold sections to the same compact rhythm.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Collect visual feedback and tune only specific zones if needed.
+  - Blockers: None.
+- 2026-02-23: Converted left pane to a tabbed single-panel workflow.
+  - Completed:
+    - Replaced stacked left panels with one tabbed panel:
+      - `Run`
+      - `Global`
+      - `Points & Edges`
+      - `Generation`
+    - Kept existing controls/behavior and only changed presentation/layout.
+    - Added compact tab styles and internal scroll area in CAD light theme.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Tune tab labels/order if user workflow suggests a better sequence.
+  - Blockers: None.
+- 2026-02-23: Moved generation settings inline and switched selected-point editing to exact `(a+b√2)/2^k` style.
+  - Completed:
+    - Removed generation-settings modal flow and integrated all fields directly into the `Generation` tab panel.
+    - Removed modal open/close state and related template block.
+    - Added exact-expression formatter for qsqrt2 values:
+      - `a+b√2` (or `/2^k` when needed)
+    - Updated selected-point coordinate editor:
+      - from decimal x/y numeric inputs
+      - to exact per-axis `a,b,k` inputs
+    - Added exact + approximate readout for selected point for easier verification.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - If needed, apply the same exact-expression style to other UI labels (e.g., edge start/readouts).
+  - Blockers: None.
+- 2026-02-23: Renamed web app to `Sqrt2 Origami Studio`.
+  - Completed:
+    - Updated display title in app and HTML:
+      - `webapp/ui/App.vue`
+      - `webapp/index.html`
+    - Updated package identity:
+      - `webapp/package.json` name -> `sqrt2-origami-studio`
+      - `webapp/package-lock.json` top-level names synced
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - If desired, align mock lab heading names with the same branding.
+  - Blockers: None.
+- 2026-02-23: Added GitHub Pages publishing setup.
+  - Completed:
+    - Added Pages-ready Vite base config in `webapp/vite.config.ts`:
+      - Uses repository name on GitHub Actions build
+      - Keeps `/` base for local dev
+    - Added GitHub Actions workflow:
+      - `.github/workflows/pages.yml`
+      - typecheck + build + upload artifact + deploy to Pages
+    - Added root publishing docs and hygiene files:
+      - `README.md`
+      - `.gitignore`
+    - Updated `webapp/README.md` to reflect current tabbed UI flow and Pages behavior.
+    - Validation:
+      - npm run typecheck:web : pass
+      - npm run typecheck:engine : pass
+      - npm run build : pass
+  - Next:
+    - Enable `Settings -> Pages -> Source: GitHub Actions` after first push.
+  - Blockers: None.

@@ -1,0 +1,237 @@
+﻿Refactoring Plan v2: generator_grid_prune_face.py
+Last updated: 2026-02-20
+
+0. Mandate
+- DRY first: one source of truth for parameters, policies, and I/O schema.
+- No fallbacks in core logic.
+- No compatibility shims kept only for migration convenience.
+- Fail fast on invalid state or malformed input.
+
+1. Hard Rules (must hold during every step)
+- Rule A: Do not introduce fallback paths.
+- Rule B: Do not swallow errors with broad handlers such as `except Exception`.
+- Rule C: Keep run parameters defined in exactly one place (RunConfig).
+- Rule D: Prefer structural moves over local patches if duplication remains.
+
+2. Current Snapshot
+- Archived baseline: py/old/generator_grid_prune_face.py (4799 lines)
+- Current entrypoint: py/generator_grid_prune_face.py (37 lines)
+- Wrapper count in entrypoint (`return _xxx_impl(...)`): 0
+- Runtime pipeline module: py/creasegen/runtime_pipeline.py (29 lines)
+- Wrapper count in runtime pipeline (`return _xxx_impl(...)`): 0
+- Runtime ops module: py/creasegen/runtime_ops.py (692 lines)
+- Wrapper count in runtime ops (`return _xxx_impl(...)`): 0
+
+Main extracted modules:
+- py/creasegen/core_types.py
+- py/creasegen/scoring.py
+- py/creasegen/parsing.py
+- py/creasegen/expand.py
+- py/creasegen/direction.py
+- py/creasegen/predicates.py
+- py/creasegen/geometry.py
+- py/creasegen/graph.py
+- py/creasegen/grid_utils.py
+- py/creasegen/actions.py
+- py/creasegen/prune_axes.py
+- py/creasegen/seeding.py
+- py/creasegen/triangle.py
+- py/creasegen/evaluation.py
+- py/creasegen/search.py
+- py/creasegen/search_policy.py
+- py/creasegen/search_candidates.py
+- py/creasegen/search_actions.py
+- py/creasegen/auto_expand.py
+- py/creasegen/final_prune.py
+- py/creasegen/stage_search.py
+- py/creasegen/stage_expand_planning.py
+- py/creasegen/stage_expand_apply.py
+- py/creasegen/stage_search_policy.py
+- py/creasegen/stage_search_bindings.py
+- py/creasegen/pipeline_search.py
+- py/creasegen/run_config.py
+- py/creasegen/runtime_context.py
+- py/creasegen/app.py
+- py/creasegen/runtime_pipeline.py
+- py/creasegen/cli.py
+- py/creasegen/run_request_store.py
+- py/creasegen/result_payload.py
+- py/creasegen/rendering.py
+
+3. Fallback / Non-DRY Hotspots (priority)
+- py/creasegen/stage_search.py
+  - still coordinates many stage-loop branches; additional state bundling can further reduce argument threading.
+- py/creasegen/runtime_ops.py
+  - centralized alias block is large; remaining cleanup is naming/ownership lock rather than wrapper removal.
+
+4. Target Architecture (large changes allowed)
+- `py/generator_grid_prune_face.py`
+  - thin executable only: parse -> config -> run_app -> save request -> print.
+  - target size: <= 180 lines.
+- `py/creasegen/app.py`
+  - owns end-to-end orchestration currently in `run()`.
+- `py/creasegen/runtime_context.py`
+  - one typed context/dataclass for injected operations; remove repeated wrapper DI wiring.
+- `py/creasegen/cli.py`
+  - parser build and CLI-to-config mapping.
+- `py/creasegen/run_request_store.py`
+  - strict load/append/save with explicit schema and explicit errors.
+
+5. Refactoring Phases
+
+Phase 0: Baseline freeze and guardrails
+- Capture baseline outputs for fixed presets.
+- Add strict grep checks to block fallback reintroduction.
+- Keep behavior metrics snapshots for max-depth 0 and 1 runs.
+
+Phase 1: Remove fallback behavior (strict mode by default)
+- Step 1.1: expand strictness (completed on 2026-02-20)
+  - backward-compatible norm inference removed from `expand.py`.
+  - normalized bounds are now required when expansion request exists.
+  - inconsistent stats now raise `ValueError` (fail-fast).
+- Step 1.2: prune_axes strictness (completed on 2026-02-20)
+  - `edge_line_key` now returns Optional line key.
+  - unknown-direction edges are skipped explicitly.
+  - `prune_unknown_line_key_total` stat is recorded.
+- Step 1.3: ray-hit strategy unification
+  - completed on 2026-02-20.
+  - `graph.py:first_hit_edge` now uses one deterministic strategy.
+  - face/global mixed branching removed from the selection path.
+- Step 1.4: run-request I/O strictness (completed on 2026-02-20)
+  - broad `except Exception` removed from request loading.
+  - invalid stored payload schema now raises `ValueError`.
+
+Phase 2: DRY consolidation of orchestration
+- Create `creasegen/app.py` and move current `run()` body there.
+- Keep `RunConfig` as single source for:
+  - staged search controls
+  - result params payload
+  - run request payload
+- Remove duplicate kwargs assembly spread across modules.
+- Status on 2026-02-20:
+  - `run()` orchestration moved to `creasegen/app.py::run_app`.
+  - `creasegen/runtime_context.py::RunAppContext` introduced for dependency wiring.
+  - entrypoint `run()` now delegates to `run_app`.
+
+Phase 3: Wrapper elimination
+- Replace entrypoint-level wrapper forwarding with direct module ownership.
+- Move remaining helper glue into owning modules.
+- Rename `_xxx_impl` exports to final names where ownership is stable.
+- Status on 2026-02-20:
+  - entrypoint wrapper count reduced to 0 by moving logic to `runtime_pipeline.py`.
+  - wrapper elimination completed for runtime ops module.
+- Target achieved: wrapper count in runtime ops is 0.
+
+Phase 4: CLI and I/O split
+- Move parser construction to `creasegen/cli.py`.
+- Move run-request persistence to `creasegen/run_request_store.py`.
+- Keep main file as a minimal executable shell.
+- Status on 2026-02-20:
+  - parser definition moved to `creasegen/cli.py::build_parser`.
+  - run-request load/append/save moved to `creasegen/run_request_store.py`.
+  - entrypoint `main()` now uses these modules directly.
+
+Phase 5: Search and stage decomposition
+- Split `search.py` into:
+  - candidate generation
+  - action application
+  - acceptance policy
+- Split `stage_search.py` into:
+  - expand planning
+  - stage loop control
+- Status on 2026-02-20:
+  - `search.py` helper logic was split into `search_candidates.py`, `search_actions.py`, and `search_policy.py`.
+  - `search.py` now orchestrates recursion while delegated modules own candidate/action/policy details.
+  - `stage_search.py` auto-expand planning and apply logic were split into `stage_expand_planning.py` and `stage_expand_apply.py`.
+  - `stage_search.py` now focuses on stage loop control.
+  - `stage_search.py` introduced typed `StageSearchConfig` and `StageSearchDeps`, and `pipeline_search.py` now builds them once per run instead of threading long kwargs.
+  - `stage_search.py` coarse-round/limit/auto-expand decision updates were moved to `stage_search_policy.py`.
+  - `stage_search_kwargs` dict plumbing was removed between `app.py` and `pipeline_search.py`; typed `StageSearchDeps/StageSearchConfig` are now built by `stage_search_bindings.py` and passed directly.
+  - duplicate `search_stage(...)` call wiring in `pipeline_search.py` was consolidated via a local helper.
+  - tuple-heavy returns were replaced with typed results: `StageSearchResult` (`stage_search.py`) and `StagedSearchResult` (`pipeline_search.py`), and `app.py` now consumes named fields.
+  - mutable stage work budget threading (`a_work/b_work/a_norm_work/b_norm_work`) was replaced with `StageWorkBudget` across `stage_search.py`, `pipeline_search.py`, and `app.py`.
+  - `seed_expand_initial_graph` tuple return was replaced with typed `SeedExpandResult`, and seed budget threading now reuses `StageWorkBudget`.
+
+Phase 6: Cleanup and contract lock
+- Remove dead code and migration-only aliases.
+- Freeze external contracts (`RunConfig`, result payload schema).
+- Document invariants and strict behavior.
+- Status on 2026-02-20:
+  - `result_payload.py` now locks output schema via `RUN_RESULT_KEYS` + fail-fast validation.
+  - `stage_search_bindings.py` now uses explicit field-name constants for stage dep/config binding contracts.
+  - stage/seed/result modules now publish explicit contract surface via `__all__` in `stage_search.py`, `pipeline_search.py`, `stage_search_bindings.py`, and `result_payload.py`.
+
+6. Verification Gates (every phase)
+- Compile:
+  - `python -B -m py_compile (Get-ChildItem py/creasegen/*.py | ForEach-Object { $_.FullName }) py/generator_grid_prune_face.py`
+- Smoke:
+  - `python -B py/generator_grid_prune_face.py --max-depth 0 --no-render --no-save-run-request`
+  - `python -B py/generator_grid_prune_face.py --max-depth 1 --no-render --no-save-run-request`
+- Regression fields to compare:
+  - `corner_score_after`
+  - `kawasaki_violations_after`
+  - `priority_corner_kawasaki_violations_after`
+  - key `search_stats` counters
+- Strictness grep checks (must be empty in active modules):
+  - `rg -n "fallback|Backward-compatible" py/creasegen py/generator_grid_prune_face.py`
+  - `rg -n "except Exception" py/creasegen py/generator_grid_prune_face.py`
+
+7. Completion Criteria
+- Entrypoint <= 180 lines.
+- Entrypoint wrapper-forward count == 0.
+- Runtime pipeline wrapper-forward count == 0.
+- Runtime ops wrapper-forward count == 0.
+- No fallback markers in active modules.
+- No broad exception swallowing.
+- Smoke and baseline metrics pass.
+
+8. Next 3 Steps (immediate)
+- Step N1: Phase 5 decomposition
+  - optionally consolidate `stage_expand_*` and `stage_search_policy` into a single `stage_search_logic` package if readability improves.
+- Step N2: Stage loop decomposition
+  - done on 2026-02-20: seed-expand now returns typed `SeedExpandResult` and no longer exposes tuple return.
+- Step N3: Phase 6 contract lock
+  - done on 2026-02-20: invariants documented, contract exports (`__all__`) aligned, and migration-only tuple plumbing removed.
+
+10. Invariants (locked)
+- Stage budget contract:
+  - `StageWorkBudget` is the single mutable-budget carrier for stage/seed search.
+  - stage-level budget threading by raw tuple fields (`a_work/b_work/a_norm_work/b_norm_work`) is not allowed.
+- Stage result contract:
+  - `search_stage` returns `StageSearchResult`.
+  - `run_staged_search` returns `StagedSearchResult`.
+  - `seed_expand_initial_graph` returns `SeedExpandResult`.
+- Binding contract:
+  - `stage_search_bindings.py` uses explicit `STAGE_SEARCH_DEP_FIELDS` and `STAGE_SEARCH_CONFIG_FIELDS`.
+  - missing bindings fail fast via `AttributeError`.
+- Result payload contract:
+  - `result_payload.py` output keys must exactly match `RUN_RESULT_KEYS`.
+  - schema mismatch fails fast via `ValueError`.
+- Strictness contract:
+  - no fallback markers in active modules.
+  - no broad `except Exception` in active modules.
+
+9. Changelog (condensed)
+- 2026-02-19: search/auto_expand/final_prune/stage/pipeline/result/render modules extracted.
+- 2026-02-20: GridCreaseGraph extracted to `creasegen/graph.py`.
+- 2026-02-20: RunConfig introduced (`creasegen/run_config.py`), duplicated parameter mapping removed.
+- 2026-02-20: Plan revised to DRY-first, no-fallback, fail-fast execution model.
+- 2026-02-20: Removed fallback logic in `expand.py`/`prune_axes.py` and removed broad exception fallback in run-request loading.
+- 2026-02-20: Unified `graph.py:first_hit_edge` to a single deterministic global-hit strategy (no mixed fallback branch).
+- 2026-02-20: Moved run orchestration to `creasegen/app.py` and introduced `RunAppContext` in `creasegen/runtime_context.py`.
+- 2026-02-20: Moved CLI parser and run-request store to `creasegen/cli.py` and `creasegen/run_request_store.py`.
+- 2026-02-20: Slimmed `generator_grid_prune_face.py` to thin entrypoint and moved runtime logic to `creasegen/runtime_pipeline.py`.
+- 2026-02-20: Reduced `runtime_pipeline.py` to context auto-binding (29 lines) and centralized `RunAppContext` bindings in `runtime_ops.py` with explicit fail-fast missing-binding checks.
+- 2026-02-20: Replaced `runtime_ops.py` forwarding wrappers with centralized `partial` aliases; wrapper-forward count reduced from 35 to 0 while keeping smoke metrics stable.
+- 2026-02-20: Split search concerns into `search_candidates.py`, `search_actions.py`, and `search_policy.py` while preserving max-depth 0/1 smoke outputs.
+- 2026-02-20: Split stage expansion concerns into `stage_expand_planning.py` and `stage_expand_apply.py`; `stage_search.py` now owns loop control and preserved max-depth 0/1 smoke outputs.
+- 2026-02-20: Removed unused face-index helpers/structures from `graph.py` and corresponding clone/adopt payload from `graph_ops.py` after global-hit unification.
+- 2026-02-20: Introduced `StageSearchConfig`/`StageSearchDeps` in `stage_search.py` and moved kwargs-to-typed-binding construction into `pipeline_search.py`.
+- 2026-02-20: Added `stage_search_policy.py` and moved coarse-round decision/stat update helpers out of `stage_search.py`.
+- 2026-02-20: Removed `stage_search_kwargs` dict plumbing; added `stage_search_bindings.py` to build typed stage deps/config directly from `RunAppContext`/`RunConfig`.
+- 2026-02-20: Simplified `pipeline_search.py` by introducing a shared local helper for `search_stage(...)` invocation and removed unused RunConfig stage kwargs selectors.
+- 2026-02-20: Replaced stage tuple returns with `StageSearchResult` / `StagedSearchResult` and removed tuple unpack chains in `app.py` and `pipeline_search.py`.
+- 2026-02-20: Introduced `StageWorkBudget` and removed 4-field mutable budget threading from stage search execution path.
+- 2026-02-20: Replaced seed-expand tuple return with `SeedExpandResult` and unified seed/stage budget handling via `StageWorkBudget`.
+- 2026-02-20: Locked run-result schema with `RUN_RESULT_KEYS` validation and stabilized stage binding field contracts in `stage_search_bindings.py`.
+- 2026-02-20: Added explicit `__all__` contract exports for stage/seed/binding/result modules.

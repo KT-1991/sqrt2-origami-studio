@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Temporary outputs
+_tmp_out/
+
+# Web app
+webapp/node_modules/
+webapp/dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db

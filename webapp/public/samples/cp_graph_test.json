@@ -1,0 +1,533 @@
+{
+  "schema": "cp_graph_v1",
+  "domain": {
+    "shape": "unit_square",
+    "x_min": 0.0,
+    "x_max": 1.0,
+    "y_min": 0.0,
+    "y_max": 1.0
+  },
+  "direction": {
+    "dir_count": 16,
+    "axis_count": 8
+  },
+  "vertices": [
+    {
+      "id": 38,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 0.0,
+        "y_approx": 0.0
+      },
+      "is_corner": true,
+      "is_boundary": true
+    },
+    {
+      "id": 39,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 0.0,
+        "y_approx": 1.0
+      },
+      "is_corner": true,
+      "is_boundary": true
+    },
+    {
+      "id": 43,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "x_approx": 0.0,
+        "y_approx": 0.7071067811865476
+      },
+      "is_corner": true,
+      "is_boundary": false
+    },
+    {
+      "id": 56,
+      "point": {
+        "x": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 1.0,
+        "y_approx": 0.0
+      },
+      "is_corner": true,
+      "is_boundary": true
+    },
+    {
+      "id": 57,
+      "point": {
+        "x": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 1.0,
+        "y_approx": 1.0
+      },
+      "is_corner": true,
+      "is_boundary": true
+    },
+    {
+      "id": 61,
+      "point": {
+        "x": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "y": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "x_approx": 1.0,
+        "y_approx": 0.7071067811865476
+      },
+      "is_corner": true,
+      "is_boundary": false
+    },
+    {
+      "id": 79,
+      "point": {
+        "x": {
+          "a": 2,
+          "b": -1,
+          "k": 0
+        },
+        "y": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "x_approx": 0.5857864376269049,
+        "y_approx": 0.7071067811865476
+      },
+      "is_corner": false,
+      "is_boundary": false
+    },
+    {
+      "id": 128,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "y": {
+          "a": 0,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 0.7071067811865476,
+        "y_approx": 0.0
+      },
+      "is_corner": true,
+      "is_boundary": false
+    },
+    {
+      "id": 129,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "y": {
+          "a": 1,
+          "b": 0,
+          "k": 0
+        },
+        "x_approx": 0.7071067811865476,
+        "y_approx": 1.0
+      },
+      "is_corner": true,
+      "is_boundary": false
+    },
+    {
+      "id": 130,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "y": {
+          "a": 2,
+          "b": -1,
+          "k": 0
+        },
+        "x_approx": 0.7071067811865476,
+        "y_approx": 0.5857864376269049
+      },
+      "is_corner": false,
+      "is_boundary": false
+    },
+    {
+      "id": 133,
+      "point": {
+        "x": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "y": {
+          "a": 0,
+          "b": 1,
+          "k": 1
+        },
+        "x_approx": 0.7071067811865476,
+        "y_approx": 0.7071067811865476
+      },
+      "is_corner": false,
+      "is_boundary": false
+    },
+    {
+      "id": 152,
+      "point": {
+        "x": {
+          "a": 1,
+          "b": 0,
+          "k": 1
+        },
+        "y": {
+          "a": 1,
+          "b": 0,
+          "k": 1
+        },
+        "x_approx": 0.5,
+        "y_approx": 0.5
+      },
+      "is_corner": true,
+      "is_boundary": false
+    },
+    {
+      "id": 323,
+      "point": {
+        "x": {
+          "a": 2,
+          "b": 1,
+          "k": 2
+        },
+        "y": {
+          "a": 2,
+          "b": 1,
+          "k": 2
+        },
+        "x_approx": 0.8535533905932737,
+        "y_approx": 0.8535533905932737
+      },
+      "is_corner": false,
+      "is_boundary": false
+    }
+  ],
+  "edges": [
+    {
+      "id": 0,
+      "v0": 38,
+      "v1": 56,
+      "is_boundary": true,
+      "axis8": 0,
+      "birth_order": 0
+    },
+    {
+      "id": 1,
+      "v0": 56,
+      "v1": 57,
+      "is_boundary": true,
+      "axis8": 4,
+      "birth_order": 1
+    },
+    {
+      "id": 2,
+      "v0": 39,
+      "v1": 57,
+      "is_boundary": true,
+      "axis8": 0,
+      "birth_order": 2
+    },
+    {
+      "id": 3,
+      "v0": 38,
+      "v1": 39,
+      "is_boundary": true,
+      "axis8": 4,
+      "birth_order": 3
+    },
+    {
+      "id": 4,
+      "v0": 128,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 5,
+      "birth_order": 5
+    },
+    {
+      "id": 5,
+      "v0": 43,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 7,
+      "birth_order": 6
+    },
+    {
+      "id": 6,
+      "v0": 61,
+      "v1": 128,
+      "is_boundary": false,
+      "axis8": 3,
+      "birth_order": 9
+    },
+    {
+      "id": 7,
+      "v0": 43,
+      "v1": 129,
+      "is_boundary": false,
+      "axis8": 1,
+      "birth_order": 10
+    },
+    {
+      "id": 8,
+      "v0": 61,
+      "v1": 130,
+      "is_boundary": false,
+      "axis8": 1,
+      "birth_order": 11
+    },
+    {
+      "id": 9,
+      "v0": 130,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 1,
+      "birth_order": 12
+    },
+    {
+      "id": 10,
+      "v0": 128,
+      "v1": 130,
+      "is_boundary": false,
+      "axis8": 4,
+      "birth_order": 13
+    },
+    {
+      "id": 11,
+      "v0": 79,
+      "v1": 129,
+      "is_boundary": false,
+      "axis8": 3,
+      "birth_order": 15
+    },
+    {
+      "id": 12,
+      "v0": 79,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 3,
+      "birth_order": 16
+    },
+    {
+      "id": 13,
+      "v0": 43,
+      "v1": 79,
+      "is_boundary": false,
+      "axis8": 0,
+      "birth_order": 17
+    },
+    {
+      "id": 14,
+      "v0": 129,
+      "v1": 133,
+      "is_boundary": false,
+      "axis8": 4,
+      "birth_order": 18
+    },
+    {
+      "id": 15,
+      "v0": 130,
+      "v1": 133,
+      "is_boundary": false,
+      "axis8": 4,
+      "birth_order": 19
+    },
+    {
+      "id": 16,
+      "v0": 79,
+      "v1": 133,
+      "is_boundary": false,
+      "axis8": 0,
+      "birth_order": 20
+    },
+    {
+      "id": 17,
+      "v0": 61,
+      "v1": 133,
+      "is_boundary": false,
+      "axis8": 0,
+      "birth_order": 21
+    },
+    {
+      "id": 18,
+      "v0": 38,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 2,
+      "birth_order": 22
+    },
+    {
+      "id": 19,
+      "v0": 133,
+      "v1": 152,
+      "is_boundary": false,
+      "axis8": 2,
+      "birth_order": 23
+    },
+    {
+      "id": 20,
+      "v0": 61,
+      "v1": 323,
+      "is_boundary": false,
+      "axis8": 6,
+      "birth_order": 24
+    },
+    {
+      "id": 21,
+      "v0": 129,
+      "v1": 323,
+      "is_boundary": false,
+      "axis8": 6,
+      "birth_order": 25
+    },
+    {
+      "id": 22,
+      "v0": 133,
+      "v1": 323,
+      "is_boundary": false,
+      "axis8": 2,
+      "birth_order": 26
+    },
+    {
+      "id": 23,
+      "v0": 57,
+      "v1": 323,
+      "is_boundary": false,
+      "axis8": 2,
+      "birth_order": 27
+    }
+  ],
+  "corners": [
+    38,
+    39,
+    43,
+    56,
+    57,
+    61,
+    128,
+    129,
+    152
+  ],
+  "stats": {
+    "vertex_count": 13,
+    "edge_count": 24,
+    "boundary_edge_count": 4,
+    "corner_count": 9
+  },
+  "params": {
+    "a_max": 2,
+    "b_max": 2,
+    "k_max": 2,
+    "corner_max_deg": 45.0,
+    "max_depth": 0,
+    "branch_per_node": 4,
+    "allow_violations": 2,
+    "max_nodes": 300,
+    "enforce_symmetry": true,
+    "enable_open_sink": true,
+    "enable_open_sink_repair": true,
+    "open_sink_max_bounces": 14,
+    "min_corner_lines": 2,
+    "kawasaki_tol": 1e-08,
+    "enable_corner_kawasaki_repair": true,
+    "enable_triangle_macro": false,
+    "require_corner_kawasaki": true,
+    "staged_k_relax": false,
+    "k_start": 1,
+    "dir_top_k": 4,
+    "priority_top_n": 6,
+    "use_local_ray_dirty": false,
+    "stop_on_corner_clear": false,
+    "auto_expand_grid": false,
+    "auto_expand_max_rounds": 3,
+    "expand_stall_rounds": 1,
+    "seed_auto_expand": true,
+    "seed_auto_expand_max_rounds": 1,
+    "final_prune": true,
+    "final_prune_rounds": 2,
+    "final_prune_max_candidates": 64,
+    "show_prune_axes": false,
+    "prune_axes_max": 24,
+    "show_order": false,
+    "highlight_kawasaki": false,
+    "draft_guided": false,
+    "draft_max_depth": 1,
+    "draft_branch_per_node": 2,
+    "draft_max_nodes": 80,
+    "a_max_effective": 2,
+    "b_max_effective": 2,
+    "a_norm_effective": 0,
+    "b_norm_effective": 0,
+    "k_max_effective": 2,
+    "seed_expand_rounds_used": 0
+  },
+  "search_stats": {
+    "recurse_calls": 1,
+    "visited_nodes": 1,
+    "prune_max_depth": 1,
+    "prune_unknown_line_key_total": 0,
+    "prune_line_groups_total": 10,
+    "prune_targeted_edges_total": 1,
+    "prune_tx_attempted_total": 1,
+    "prune_tx_fail_total": 1,
+    "final_prune_nochange": 1
+  },
+  "stage_logs": []
+}

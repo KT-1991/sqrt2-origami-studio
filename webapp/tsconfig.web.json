@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*.ts", "ui/**/*.ts", "ui/**/*.d.ts", "ui/**/*.vue"],
+  "exclude": ["docs/**"]
+}
